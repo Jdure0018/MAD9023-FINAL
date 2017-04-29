@@ -1,0 +1,52 @@
+#Allow for CORS requests
+Header set Access-Control-Allow-Origin "*"
+
+#turn on errors for this folder
+php_flag display_errors on
+php_flag log_errors on
+
+#Force php to handle files with no file extension
+DefaultType application/http-php
+<Files "*">
+    ForceType application/x-httpd-php
+</Files>
+
+#Allow working with $_SERVER['PATH_INFO']
+AcceptPathInfo On
+
+#Disable browsing listing of files
+#IndexIgnore *
+
+#Prevent the direct access of files that end with .inc.php or .ini or .htaccess
+<FilesMatch "\.(inc\.php|htaccess|ini)$">
+   Order Allow,Deny
+   Deny from all
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ /index.php?path=$1 [NC,L,QSA]
+
+  #start looking at the URLs that begin with #http://*.edumedia.ca/mad9023/contacts/api/v1/
+  #RewriteCond %{HTTP_HOST} ^/mad9023/contacts/api/v1/
+
+	# Redirect everything to index.php so it can process the requests and route them to the proper pages
+	# using header('Location: somepage.php');
+
+    # These are not valid yet
+    # Need to be updated to properly parse the parameters
+    # json/contacts/
+    # json/contacts/sort/last/
+    # json/contacts/add/Bob/Smith/bob@work.org/
+    # xml/contacts/remove/123
+    # json/contacts/view/123
+    #
+    # Something like the below would convert parts of a URL into querystring params
+    # Other option would be to redirect everything to index.php and then parse the PATH_INFO
+    #RewriteRule (.*)/limit/(.*)/page/(.*)/sort/(.*)/type/(.*)$ index.php?action=$1&limit=$2&page=$3&sort=$4&method=$5 [L,QSA]
+    #RewriteRule (.*)/contacts/  $ index.php?type=$1 [L,QSA]
+	  #RewriteRule (.*)/(.*)$ index.php?type=$1 [L,QSA]
+	  #RewriteRule ^(.*)$ index.php?type=$1 [L,QSA]
+</IfModule>
